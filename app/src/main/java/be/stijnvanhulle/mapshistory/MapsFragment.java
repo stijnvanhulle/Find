@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import be.stijnvanhulle.mapshistory.Models.Restaurant;
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 import be.stijnvanhulle.mapshistory.Models.Store;
@@ -27,7 +28,7 @@ public class MapsFragment extends Fragment {
 
 
     private Store mStore;
-
+    private Restaurant mRestaurant;
 
     public static MapsFragment newInstance(Store store) {
         MapsFragment fragment = new MapsFragment();
@@ -35,6 +36,17 @@ public class MapsFragment extends Fragment {
         Bundle bundle = new Bundle();
         JSONSerializer ser = new JSONSerializer();
         bundle.putString(MainActivity.EXTRA_STORE, ser.deepSerialize(store));// to json format
+        fragment.setArguments(bundle);
+
+        return fragment;
+    }
+
+    public static MapsFragment newInstance(Restaurant restaurant) {
+        MapsFragment fragment = new MapsFragment();
+
+        Bundle bundle = new Bundle();
+        JSONSerializer ser = new JSONSerializer();
+        bundle.putString(MainActivity.EXTRA_RESTAURANT, ser.deepSerialize(restaurant));// to json format
         fragment.setArguments(bundle);
 
         return fragment;
@@ -54,12 +66,23 @@ public class MapsFragment extends Fragment {
         {
             Bundle bundle = getArguments();
 
-            String c = bundle.getString(MainActivity.EXTRA_STORE);
+            String s = bundle.getString(MainActivity.EXTRA_STORE);
+            String r = bundle.getString(MainActivity.EXTRA_RESTAURANT);
 
-            JSONDeserializer<Store> der = new JSONDeserializer<Store>();
-            mStore = der.deserialize(c);
+            if (s !=null){
+                JSONDeserializer<Store> der = new JSONDeserializer<Store>();
+                mStore = der.deserialize(s);
 
-            PLACE = new LatLng(Double.parseDouble(mStore.Geo_y), Double.parseDouble(mStore.Geo_x));
+                PLACE = new LatLng(Double.parseDouble(mStore.Geo_y), Double.parseDouble(mStore.Geo_x));
+            }else{
+                JSONDeserializer<Restaurant> der = new JSONDeserializer<Restaurant>();
+                mRestaurant = der.deserialize(r);
+
+                PLACE = new LatLng(Double.parseDouble(mRestaurant.Geo_y), Double.parseDouble(mRestaurant.Geo_x));
+            }
+
+
+
 
         }
     }
@@ -70,15 +93,27 @@ public class MapsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v= inflater.inflate(R.layout.fragment_maps,container,false);
+        View v= inflater.inflate(R.layout.fragment_maps, container, false);
 
         getMap(v,savedInstanceState);
 
 
-        MarkerOptions marker = new MarkerOptions()
-                .position(PLACE)
-                .title(mStore.Bedrijfsnaam)
-                .snippet(mStore.Adres);
+
+        MarkerOptions marker;
+
+        //controle restaurant of store
+        if (mStore!=null){
+            marker = new MarkerOptions()
+                    .position(PLACE)
+                    .title(mStore.Bedrijfsnaam)
+                    .snippet(mStore.Adres);
+        }else{
+            marker = new MarkerOptions()
+                    .position(PLACE)
+                    .title(mRestaurant.Naam)
+                    .snippet(mRestaurant.Description);
+        }
+
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
         map.addMarker(marker);
 

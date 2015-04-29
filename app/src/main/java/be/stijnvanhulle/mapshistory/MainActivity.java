@@ -3,18 +3,26 @@ package be.stijnvanhulle.mapshistory;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 
+import be.stijnvanhulle.mapshistory.Models.Restaurant;
 import be.stijnvanhulle.mapshistory.Models.Store;
 
 
-public class MainActivity extends Activity implements StoreFragment.OnStartFragmentListener {
+public class MainActivity extends Activity implements StoreFragment.OnStartFragmentListener, RestaurantFragment.OnRestaurantFragmentListener {
 
 
 
-    public static final String EXTRA_STORE ="cursor";
+    public static final String EXTRA_STORE ="store";
+    public static final String EXTRA_RESTAURANT ="restaurant";
+
+    public static final String ERROR ="error";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,9 +30,10 @@ public class MainActivity extends Activity implements StoreFragment.OnStartFragm
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, StoreFragment.newInstance())
+                    .add(R.id.container, RestaurantFragment.newInstance())
                     .commit();
         }
+
 
     }
 
@@ -50,10 +59,31 @@ public class MainActivity extends Activity implements StoreFragment.OnStartFragm
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }else if(id==R.id.action_restaurants){
+            getFragmentManager().popBackStack();
+            setTitle("Restaurants");
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.container, RestaurantFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+
+        } else if(id==R.id.action_stores){
+            getFragmentManager().popBackStack();
+            setTitle("Stores");
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.container, StoreFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
 
     @Override
     public void changeGeo(Store store) {
@@ -61,6 +91,19 @@ public class MainActivity extends Activity implements StoreFragment.OnStartFragm
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         MapsFragment fragment = MapsFragment.newInstance(store);
+        fragmentTransaction
+                .replace(R.id.container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+
+    @Override
+    public void changeGeo(Restaurant restaurant) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        MapsFragment fragment = MapsFragment.newInstance(restaurant);
         fragmentTransaction
                 .replace(R.id.container, fragment)
                 .addToBackStack(null)

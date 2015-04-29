@@ -7,10 +7,21 @@
         <!--   theme UI controls like checkboxes and text fields -->
         <item name="android:navigationBarColor">@color/black</item>
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:actionBarPopupTheme">@style/popupNew</item>
+    </style>
+
+
+
+
+
+    <style name="popupNew" parent="android:ThemeOverlay.Material.Light">
+        <item name="android:colorBackground">@color/primary</item>
+        <item name="android:color">@color/white</item>
     </style>
 
     <color name="primary_dark">#4B606B</color>
     <color name="primary">#607D8B</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+
 </resources>
