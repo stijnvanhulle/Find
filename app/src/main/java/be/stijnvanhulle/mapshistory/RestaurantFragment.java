@@ -132,6 +132,9 @@ public class RestaurantFragment extends ListFragment implements LoaderManager.Lo
         int iGeo_x=cursor.getColumnIndex(Contract.StoresColumns.COLUMN_GEO_X);
         int iGeo_y=cursor.getColumnIndex(Contract.StoresColumns.COLUMN_GEO_Y);
 
+
+        cursor.moveToPosition(position);
+
         String naam=cursor.getString(iNaam);
         String description=cursor.getString(iDescription);
         String keywords=cursor.getString(iKeywords);
@@ -188,20 +191,22 @@ public class RestaurantFragment extends ListFragment implements LoaderManager.Lo
                 MarkerOptions marker = new MarkerOptions()
                         .position(new LatLng(Double.parseDouble(restaurant.Geo_y), Double.parseDouble(restaurant.Geo_x)))
                         .title(restaurant.Naam)
-                        .snippet(restaurant.Description);
+                        .snippet("");
                 marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                 map.addMarker(marker);
 
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(Double.parseDouble(restaurant.Geo_y), Double.parseDouble(restaurant.Geo_x))).zoom(15).build();
-                map.animateCamera(CameraUpdateFactory
-                        .newCameraPosition(cameraPosition));
 
-
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(Double.parseDouble(restaurant.Geo_y), Double.parseDouble(restaurant.Geo_x)), 12));
                 //kortijk coordianten laden
             }
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(50.8028051,3.279785)).zoom(10).build();
+            map.animateCamera(CameraUpdateFactory
+                    .newCameraPosition(cameraPosition));
+
+
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(50.8028051,3.279785), 10));
+
 
         }
     }
@@ -219,11 +224,21 @@ public class RestaurantFragment extends ListFragment implements LoaderManager.Lo
             this.layout = layout;
         }
 
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            TextView txtKeywords = (TextView) view.findViewById(R.id.Keywords);
+            TextView txtName=(TextView) view.findViewById(R.id.Naam);
 
+            int colnrKeywords= cursor.getColumnIndex(Contract.RestaurantsColumns.COLUMN_KEYWORDS);
+            int colnrName=cursor.getColumnIndex(Contract.RestaurantsColumns.COLUMN_NAAM);
 
+            String tekst=cursor.getString(colnrKeywords).toString();
+            tekst=tekst.substring(1,tekst.length()-1);
+            tekst=tekst.replaceAll("\"", "");
 
-
-
+            txtKeywords.setText(tekst);
+            txtName.setText(cursor.getString(colnrName).toString());
+        }
     }
 
     private void getMap(View v,Bundle savedInstanceState) {

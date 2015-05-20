@@ -9,7 +9,15 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toolbar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import be.stijnvanhulle.mapshistory.Models.Restaurant;
 import be.stijnvanhulle.mapshistory.Models.Store;
@@ -24,16 +32,72 @@ public class MainActivity extends Activity implements StoreFragment.OnStartFragm
 
     public static final String ERROR ="error";
 
+    private Toolbar toolbar;
+    private Spinner spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        spinner= (Spinner) findViewById(R.id.spinner);
+
+        List<String> frags = new ArrayList<>();
+
+
+        frags.add("Restaurants");
+        frags.add("Stores");
+
+
+
+        setActionBar(toolbar);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,frags);
+
+
+        spinner.setAdapter(arrayAdapter);
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position==0){
+                    getFragmentManager().popBackStack();
+                    setTitle("Find");
+                    getFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .replace(R.id.container, RestaurantFragment.newInstance())
+                            .addToBackStack(null)
+                            .commit();
+                }
+
+                if(position==1){
+                    getFragmentManager().popBackStack();
+                    setTitle("Find");
+                    getFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .replace(R.id.container, StoreFragment.newInstance())
+                            .addToBackStack(null)
+                            .commit();
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                parent.getAdapter();
+
+            }
+        });
+
+
+
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, RestaurantFragment.newInstance())
                     .commit();
         }
-
+        //setActionBar(toolbar);
 
     }
 
@@ -59,24 +123,6 @@ public class MainActivity extends Activity implements StoreFragment.OnStartFragm
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }else if(id==R.id.action_restaurants){
-            getFragmentManager().popBackStack();
-            setTitle("Restaurants");
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .replace(R.id.container, RestaurantFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit();
-
-        } else if(id==R.id.action_stores){
-            getFragmentManager().popBackStack();
-            setTitle("Stores");
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .replace(R.id.container, StoreFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit();
-
         }
 
         return super.onOptionsItemSelected(item);
